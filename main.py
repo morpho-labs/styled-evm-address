@@ -9,25 +9,27 @@ def kecakk256(value: str):
     return keccak.new(data=bytes.fromhex(value), digest_bits=256).hexdigest()
 
 
-bytecode = "0x"
-sender = "0x"
-
 prefix_constraint = "0000"
 suffix_constraint = ""
+deployer_address = "0x"
+bytecode = "0x"
+
+print_interval = 100_000
 max_trials = 1_000_000_000_000
 
-sender_hex = sender[2:]
+
+deployer_address_hex = deployer_address[2:]
 bytecode_hash_hex = kecakk256(bytecode[2:])
 file_name = f"{prefix_constraint}-{suffix_constraint}.txt"
 
 if __name__ == "__main__":
     for step in range(max_trials):
         salt_hex = "%064x" % random.randrange(MIN_SALT_INT)
-        contract_address = kecakk256(f"ff{sender_hex}{salt_hex}{bytecode_hash_hex}")[
-            -40:
-        ]
+        input_hex = f"ff{deployer_address_hex}{salt_hex}{bytecode_hash_hex}"
 
-        if step % 50000 == 0:
+        contract_address = kecakk256(input_hex)[-40:]
+
+        if step % print_interval == 0:
             print("🔎 {:,}".format(step).replace(",", " "))
 
         if contract_address.startswith(prefix_constraint) and contract_address.endswith(
